@@ -1,23 +1,42 @@
-import sqlite3
+import csv
 import os
+import time
 
-# --- Configuration de la Base de Données ---
-DB_NAME = 'inventaire.db'
-
-def connecter_db():
+# --- Configuration fichier csv ---
+fichier_csv = 'inventaire.csv'
+data={}
+max_id = 0
+def charger_fichier():
+    global data
+    global max_id
+    global fichier_csv
+    data= {}
     """Établit la connexion à la DB et crée la table 'produits' si elle n'existe pas."""
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS produits (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nom TEXT NOT NULL,
-            prix REAL NOT NULL,
-            quantite INTEGER NOT NULL
-        )
-    ''')
-    conn.commit()
-    return conn
+    try:
+      with open (fichier_csv,"r",newline="") as f:
+        reader = csv.DictReader(f,delimiter=";")
+        for row in reader:
+            print(row)
+            id = int(row["id"])
+            if id > max_id:
+                max_id = id
+            data [id] =row
+        print(f"fichier load {len(data)}")
+    except Exception as e:
+        print(f"error {e}")
+    time.sleep (2)
+def sauver():
+    global data
+    global fichier_csv
+
+    with open(fichier_csv, 'w', newline='') as csvfile:
+        fieldnames = ['id', 'nom', 'prix', 'quantite']
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames,delimiter=";")
+
+        writer.writeheader()
+        for item in data.values () : 
+             writer.writerow(item)
+
 
 def nettoyer_ecran():
     """Nettoie la console pour une meilleure lisibilité du menu."""
@@ -25,7 +44,9 @@ def nettoyer_ecran():
 
 # --- 1. Opération CREATE (Ajouter) ---
 
-def ajouter_produit(conn):
+def ajouter_produit():
+    global data 
+    global max_id
     nettoyer_ecran()
     print("✨ Ajouter un Nouveau Produit")
     
@@ -41,17 +62,13 @@ def ajouter_produit(conn):
         if prix <= 0 or quantite < 0:
              print("🛑 Le prix doit être positif et la quantité non négative.")
              return
-        
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO produits (nom, prix, quantite) VALUES (?, ?, ?)", 
-            (nom, prix, quantite)
-        )
-        conn.commit()
-        print(f"\n✅ Produit '{nom}' ajouté avec succès (ID: {cursor.lastrowid}).")
-        
-    except ValueError:
-        print("\n🛑 Erreur de saisie : Veuillez entrer un nombre valide pour le prix et la quantité.")
+        max_id = max_id+1
+        row ={ "id": max_id, "nom":nom, "prix":prix, "quantite":quantite}
+        data [max_id] = row
+        print(f"\n✅ Produit {row} ajouté avec succès (ID: {max_id}).")
+        sauver()
+    except ValueError as e:
+        print(f"\n🛑 Erreur de saisie : Veuillez entrer un nombre valide pour le prix et la quantité. {e}")
     except Exception as e:
         print(f"\n❌ Une erreur inattendue est survenue: {e}")
     finally:
@@ -60,15 +77,14 @@ def ajouter_produit(conn):
 
 # --- 2. Opération READ (Afficher) ---
 
-def afficher_inventaire(conn):
+def afficher_inventaire():
     nettoyer_ecran()
     print("📚 Inventaire Complet des Produits")
 
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, nom, prix, quantite FROM produits ORDER BY id")
-    produits = cursor.fetchall()
+    global data 
+
     
-    if not produits:
+    if not data:
         print("\n⚠️ L'inventaire est actuellement vide.")
         input("\nAppuyez sur Entrée pour revenir au menu principal...")
         return
@@ -77,10 +93,14 @@ def afficher_inventaire(conn):
     print("-" * 50)
     print(f"{'ID':<4} | {'Nom':<25} | {'Prix':<8} | {'Stock':<5}")
     print("-" * 50)
-    for id, nom, prix, quantite in produits:
+    for item in data.values():
+        id=item["id"]
+        nom=item["nom"]
+        prix=float (item["prix"])
+        quantite=item["quantite"] 
         print(f"{id:<4} | {nom:<25} | {prix:>8.2f} | {quantite:>5}")
     print("-" * 50)
-    print(f"Total de {len(produits)} produits différents en stock.")
+    print(f"Total de {len(data)} produits différents en stock.")
     
     input("\nAppuyez sur Entrée pour revenir au menu principal...")
 
@@ -195,23 +215,23 @@ def afficher_menu():
     return input("Entrez votre choix (1-5) : ").strip()
 
 def main():
-    conn = connecter_db()
+    charger_fichier()
     
     while True:
         choix = afficher_menu()
         
         if choix == '1' or choix.lower() == 'c':
-            ajouter_produit(conn)
+            ajouter_produit()
         elif choix == '2' or choix.lower() == 'r':
-            afficher_inventaire(conn)
+            afficher_inventaire()
         elif choix == '3' or choix.lower() == 'u':
-            modifier_produit(conn)
+            modifier_produit()
         elif choix == '4' or choix.lower() == 'd':
-            supprimer_produit(conn)
+            supprimer_produit()
         elif choix == '5' or choix.lower() == 'q':
             nettoyer_ecran()
             print("👋 Fermeture du programme. Merci d'avoir utilisé l'outil d'inventaire.")
-            conn.close()
+
             break
         else:
             print("\n❌ Choix invalide. Veuillez entrer un numéro (1-5) ou la lettre correspondante.")
