@@ -1,0 +1,9 @@
+2025-12-11 13:36:53 - WARNING - LOGIN: Échec pour 'robin' (Utilisateur inconnu).
+2025-12-11 13:37:49 - WARNING - LOGIN: Échec pour 'Robin' (Utilisateur inconnu).
+2025-12-11 13:41:12 - INFO - INSCRIPTION: Nouvel utilisateur 'robin' créé.
+2025-12-11 13:53:33 - WARNING - INSCRIPTION: Tentative échouée, user 'robin' existe déjà.
+2025-12-11 13:54:35 - INFO - INSCRIPTION: Nouvel utilisateur 'Admin' créé.
+2025-12-11 13:56:08 - WARNING - LOGIN: Échec pour 'admin' (Utilisateur inconnu).
+2025-12-11 13:56:19 - WARNING - LOGIN: Échec pour 'admin ae' (Utilisateur inconnu).
+2025-12-11 13:56:31 - WARNING - LOGIN: Échec pour 'admin' (Utilisateur inconnu).
+2025-12-11 13:56:51 - WARNING - LOGIN: Échec pour 'Admin' (Mauvais mot de passe).
