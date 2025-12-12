@@ -1,6 +1,8 @@
 import csv
 import os
 import time
+from auth import create_user, check_login
+
 
 # --- Configuration fichier csv ---
 fichier_csv = 'inventaire.csv'
@@ -215,23 +217,61 @@ def afficher_menu():
     return input("Entrez votre choix (1-5) : ").strip()
 
 def main():
+    # ---------- Authentification ----------
+    while True:
+        nettoyer_ecran()
+        print("=========================================")
+        print("🔐 AUTHENTIFICATION REQUISE")
+        print("=========================================")
+        print("1. Se connecter")
+        print("2. Créer un compte")
+        print("3. Quitter")
+        print("=========================================")
+        choix = input("Votre choix (1-3) : ").strip()
+
+        if choix == "1":
+            username = input("Nom d'utilisateur : ").strip()
+            password = input("Mot de passe : ").strip()
+            if check_login(username, password):
+                print("\n✅ Connexion réussie. Bienvenue", username)
+                time.sleep(1.5)
+                break
+            else:
+                print("\n🛑 Identifiants incorrects.")
+                input("Appuyez sur Entrée pour réessayer...")
+        elif choix == "2":
+            username = input("Choisissez un nom d'utilisateur : ").strip()
+            password = input("Choisissez un mot de passe : ").strip()
+            if create_user(username, password):
+                print("\n✅ Compte créé avec succès, vous pouvez vous connecter.")
+            else:
+                print("\n⚠️ Ce nom d'utilisateur existe déjà.")
+            input("Appuyez sur Entrée pour continuer...")
+        elif choix == "3":
+            return
+        else:
+            print("\n❌ Choix invalide.")
+            input("Appuyez sur Entrée pour continuer...")
+
+    # ---------- Partie inventaire ----------
     charger_fichier()
-    
+
     while True:
         choix = afficher_menu()
-        
+
         if choix == '1' or choix.lower() == 'c':
             ajouter_produit()
         elif choix == '2' or choix.lower() == 'r':
             afficher_inventaire()
         elif choix == '3' or choix.lower() == 'u':
-            modifier_produit()
+            print("⚠️ Fonction modifier_produit à adapter pour le CSV.")
+            input("Appuyez sur Entrée pour continuer...")
         elif choix == '4' or choix.lower() == 'd':
-            supprimer_produit()
+            print("⚠️ Fonction supprimer_produit à adapter pour le CSV.")
+            input("Appuyez sur Entrée pour continuer...")
         elif choix == '5' or choix.lower() == 'q':
             nettoyer_ecran()
             print("👋 Fermeture du programme. Merci d'avoir utilisé l'outil d'inventaire.")
-
             break
         else:
             print("\n❌ Choix invalide. Veuillez entrer un numéro (1-5) ou la lettre correspondante.")
