@@ -1,0 +1,28 @@
+name: CI Project3
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-test:          # 1er job = tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test simple
+        run: echo "CI fonctionne pour Project3"
+
+      - name: Vérification syntaxe PHP
+        run: |
+          find . -name "*.php" -print0 | xargs -0 -n1 php -l
+  deploy:                  # 2e job = déploiement (pour plus tard)
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Ici on mettra ensuite les étapes pour envoyer tes fichiers sur ton serveur (SSH/FTP, etc.)
