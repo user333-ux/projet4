@@ -1,4 +1,4 @@
-name: CI Project3
+name: CI-CD Project4
 
 on:
   push:
@@ -6,23 +6,42 @@ on:
       - main
 
 jobs:
-  build-and-test:          # 1er job = tests
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Test simple
-        run: echo "CI fonctionne pour Project3"
+        run: echo "CI fonctionne pour Project4"
 
       - name: Vérification syntaxe PHP
         run: |
           find . -name "*.php" -print0 | xargs -0 -n1 php -l
-  deploy:                  # 2e job = déploiement (pour plus tard)
-    needs: build-and-test
+
+  sonar:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # Ici on mettra ensuite les étapes pour envoyer tes fichiers sur ton serveur (SSH/FTP, etc.)
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}  # ← URL de TON serveur SonarQube
+        with:
+          args: >
+            -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
+            -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+            -Dsonar.sources=.
+            -Dsonar.php.file.suffixes=php
+
+  deploy:
+    needs: [build-and-test, sonar]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
