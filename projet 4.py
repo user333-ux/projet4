@@ -231,6 +231,10 @@ def afficher_menu():
 
 
 def main():
+    if not boucle_authentification():
+        return
+    boucle_inventaire()
+
     # ---------- Authentification ----------
     while True:
         nettoyer_ecran()
