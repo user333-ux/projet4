@@ -216,16 +216,16 @@ def supprimer_produit(conn):
 def afficher_menu():
     """Affiche le menu et demande le choix de l'utilisateur."""
     nettoyer_ecran()
-    print("=========================================")
+    print(SEPARATOR_LINE)
     print("🚀 SYSTÈME DE GESTION D'INVENTAIRE (CLI) 🚀")
-    print("=========================================")
+    print(SEPARATOR_LINE)
     print("1. [C] Créer / Ajouter un nouveau produit")
     print("2. [R] Lire / Afficher l'inventaire complet")
     print("3. [U] Mettre à jour / Modifier un produit")
     print("4. [D] Supprimer un produit")
-    print("-----------------------------------------")
+    print(MENU_LINE)
     print("5. Quitter le programme")
-    print("=========================================")
+    print(SEPARATOR_LINE)
 
     return input("Entrez votre choix (1-5) : ").strip()
 
@@ -234,18 +234,20 @@ def main():
     # ---------- Authentification ----------
     while True:
         nettoyer_ecran()
-        print("=========================================")
+        print(SEPARATOR_LINE)
         print("🔐 AUTHENTIFICATION REQUISE")
-        print("=========================================")
+        print(SEPARATOR_LINE)
         print("1. Se connecter")
         print("2. Créer un compte")
         print("3. Quitter")
-        print("=========================================")
+        print(SEPARATOR_LINE)
         choix = input("Votre choix (1-3) : ").strip()
 
         if choix == "1":
             username = input("Nom d'utilisateur : ").strip()
             password = input("Mot de passe : ").strip()
+            # ...
+
             if check_login(username, password):
                 print("\n✅ Connexion réussie. Bienvenue", username)
                 time.sleep(1.5)
