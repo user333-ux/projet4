@@ -235,72 +235,115 @@ def main():
         return
     boucle_inventaire()
 
-    # ---------- Authentification ----------
+
+# ---------- Authentification ----------
+
+def afficher_menu_auth():
+    nettoyer_ecran()
+    print(SEPARATOR_LINE)
+    print("🔐 AUTHENTIFICATION REQUISE")
+    print(SEPARATOR_LINE)
+    print("1. Se connecter")
+    print("2. Créer un compte")
+    print("3. Quitter")
+    print(SEPARATOR_LINE)
+    return input("Votre choix (1-3) : ").strip()
+
+
+def handle_login():
+    username = input("Nom d'utilisateur : ").strip()
+    password = input("Mot de passe : ").strip()
+
+    if check_login(username, password):
+        print("\n✅ Connexion réussie. Bienvenue", username)
+        time.sleep(1.5)
+        return True
+    else:
+        print("\n🛑 Identifiants incorrects.")
+        input(PAUSE_MESSAGE)
+        return False
+
+
+def handle_signup():
+    username = input("Choisissez un nom d'utilisateur : ").strip()
+    password = input("Choisissez un mot de passe : ").strip()
+
+    if create_user(username, password):
+        print("\n✅ Compte créé avec succès, vous pouvez vous connecter.")
+    else:
+        print("\n⚠️ Ce nom d'utilisateur existe déjà.")
+    input(PAUSE_MESSAGE)
+
+
+def boucle_authentification():
+    actions = {
+        "1": handle_login,
+        "2": handle_signup,
+        "3": lambda: "quit",
+    }
+
     while True:
-        nettoyer_ecran()
-        print(SEPARATOR_LINE)
-        print("🔐 AUTHENTIFICATION REQUISE")
-        print(SEPARATOR_LINE)
-        print("1. Se connecter")
-        print("2. Créer un compte")
-        print("3. Quitter")
-        print(SEPARATOR_LINE)
-        choix = input("Votre choix (1-3) : ").strip()
+        choix = afficher_menu_auth()
+        action = actions.get(choix)
 
-        if choix == "1":
-            username = input("Nom d'utilisateur : ").strip()
-            password = input("Mot de passe : ").strip()
-            # ...
-
-            if check_login(username, password):
-                print("\n✅ Connexion réussie. Bienvenue", username)
-                time.sleep(1.5)
-                break
-            else:
-                print("\n🛑 Identifiants incorrects.")
-                input(PAUSE_MESSAGE)
-        elif choix == "2":
-            username = input("Choisissez un nom d'utilisateur : ").strip()
-            password = input("Choisissez un mot de passe : ").strip()
-            if create_user(username, password):
-                print("\n✅ Compte créé avec succès, vous pouvez vous connecter.")
-            else:
-                print("\n⚠️ Ce nom d'utilisateur existe déjà.")
-            input(PAUSE_MESSAGE)
-        elif choix == "3":
-            return
-        else:
+        if action is None:
             print("\n❌ Choix invalide.")
             input(PAUSE_MESSAGE)
+            continue
 
-    # ---------- Partie inventaire ----------
+        result = action()
+        if result is True:       # login OK
+            return True
+        if result == "quit":     # choix 3
+            return False
+
+
+# ---------- Partie inventaire ----------
+
+def boucle_inventaire():
     charger_fichier()
+
+    def action_modifier():
+        print("⚠️ Fonction modifier_produit à adapter pour le CSV.")
+        input(PAUSE_MESSAGE)
+
+    def action_supprimer():
+        print("⚠️ Fonction supprimer_produit à adapter pour le CSV.")
+        input(PAUSE_MESSAGE)
+
+    def action_quitter():
+        nettoyer_ecran()
+        print("👋 Fermeture du programme. Merci d'avoir utilisé l'outil d'inventaire.")
+        return "quit"
+
+    actions = {
+        "1": ajouter_produit,
+        "c": ajouter_produit,
+        "2": afficher_inventaire,
+        "r": afficher_inventaire,
+        "3": action_modifier,
+        "u": action_modifier,
+        "4": action_supprimer,
+        "d": action_supprimer,
+        "5": action_quitter,
+        "q": action_quitter,
+    }
 
     while True:
         choix = afficher_menu()
+        choix_norm = choix.lower().strip()
 
-        if choix == '1' or choix.lower() == 'c':
-            ajouter_produit()
-        elif choix == '2' or choix.lower() == 'r':
-            afficher_inventaire()
-        elif choix == '3' or choix.lower() == 'u':
-            print("⚠️ Fonction modifier_produit à adapter pour le CSV.")
-            input(PAUSE_MESSAGE)
-        elif choix == '4' or choix.lower() == 'd':
-            print("⚠️ Fonction supprimer_produit à adapter pour le CSV.")
-            input(PAUSE_MESSAGE)
-        elif choix == '5' or choix.lower() == 'q':
-            nettoyer_ecran()
-            print("👋 Fermeture du programme. Merci d'avoir utilisé l'outil d'inventaire.")
-            break
-        else:
+        action = actions.get(choix_norm)
+        if action is None:
             print("\n❌ Choix invalide. Veuillez entrer un numéro (1-5) ou la lettre correspondante.")
             input(PAUSE_MESSAGE)
+            continue
+
+        result = action()
+        if result == "quit":
+            break
 
 
 if __name__ == "__main__":
     main()
 
-
-if __name__ == "__main__":
-    main()
